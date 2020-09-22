@@ -3,8 +3,10 @@ package controllers
 import (
 	"fmt"
 	"io/ioutil"
+	"log"
 	"mime/multipart"
 	"net/http"
+	"os"
 )
 
 //UploadFile uploads a file to the server
@@ -37,6 +39,14 @@ func saveFile(w http.ResponseWriter, file multipart.File, handle *multipart.File
 	if err != nil {
 		fmt.Fprint(w, "%v", err)
 		return
+	}
+
+	_, err = os.Stat("files")
+	if os.IsNotExist(err) {
+		if err := os.MkdirAll("files", 0755); err != nil {
+			log.Println("create directory files failed")
+			return
+		}
 	}
 
 	err = ioutil.WriteFile("./files/"+handle.Filename, data, 0666)
